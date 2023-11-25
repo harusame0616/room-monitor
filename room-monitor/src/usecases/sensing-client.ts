@@ -1,6 +1,7 @@
 export type Sensing = {
 	name: string;
-	id: string;
+	deviceId: string;
+	sensingId: string;
 
 	relativeHumidity: {
 		value: number;

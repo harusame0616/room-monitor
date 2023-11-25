@@ -80,7 +80,8 @@ export class RemoSensingClient implements SensingClient {
 
 	static deviceToSensor(device: DeviceResponse): Sensing {
 		return {
-			id: device.id,
+			sensingId: crypto.randomUUID(),
+			deviceId: device.id,
 			name: device.name,
 			absoluteHumidity: {
 				recordedAt: new Date(),
