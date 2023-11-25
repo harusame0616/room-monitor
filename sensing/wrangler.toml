@@ -1,4 +1,4 @@
-name = "room-monitor"
+name = "room-monitor-sensing"
 main = "src/index.ts"
 compatibility_date = "2023-11-21"
 
