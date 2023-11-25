@@ -1,0 +1,14 @@
+name = "room-monitor"
+main = "src/index.ts"
+compatibility_date = "2023-11-21"
+
+# Cron Triggers
+# Docs: https://developers.cloudflare.com/workers/platform/triggers/cron-triggers/
+# Configuration: https://developers.cloudflare.com/workers/wrangler/configuration/#triggers
+[triggers]
+crons = ["* * * * *"] # * * * * * = run every minute
+
+[[d1_databases]]
+binding = "ROOM_MONITOR_DB"
+database_name = "room_monitor"
+database_id = "c6a64adc-3202-4318-b3fc-875d89d827d9"

@@ -1,0 +1,17 @@
+{
+	"name": "room-monitor",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"db:reset-schema": "wrangler d1 execute room_monitor --local --file=./schema.sql",
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev --test-scheduled",
+		"start": "wrangler dev",
+		"execute": "curl 'http://localhost:8787/__scheduled?cron=*+*+*+*+*'"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20230419.0",
+		"typescript": "^5.0.4",
+		"wrangler": "^3.0.0"
+	}
+}
