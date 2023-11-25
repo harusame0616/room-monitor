@@ -1,49 +1,28 @@
-/**
- * Welcome to Cloudflare Workers!
- *
- * This is a template for a Scheduled Worker: a Worker that can run on a
- * configurable interval:
- * https://developers.cloudflare.com/workers/platform/triggers/cron-triggers/
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+import { D1SensingRepository } from './infrastructures/d1-sensing.repository';
+import { RemoSensingClient } from './infrastructures/remo-sensing-client';
+import { SensingRecordUsecase } from './usecases/sensing-record.usecase';
 
 export interface Env {
-	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-	// MY_KV_NAMESPACE: KVNamespace;
-	//
-	// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-	// MY_DURABLE_OBJECT: DurableObjectNamespace;
-	//
-	// Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-	// MY_BUCKET: R2Bucket;
-	//
-	// Example binding to a Service. Learn more at https://developers.cloudflare.com/workers/runtime-apis/service-bindings/
-	// MY_SERVICE: Fetcher;
-	//
-	// Example binding to a Queue. Learn more at https://developers.cloudflare.com/queues/javascript-apis/
-	// MY_QUEUE: Queue;
-	//
 	ROOM_MONITOR_DB: D1Database;
+	REMO_TOKEN?: string;
 }
 
 export default {
-	// The scheduled handler is invoked at the interval set in our wrangler.toml's
-	// [[triggers]] configuration.
 	async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
-		// A Cron Trigger can make requests to other endpoints on the Internet,
-		// publish to a Queue, query a D1 Database, and much more.
-		//
-		// We'll keep it simple and make an API call to a Cloudflare API:
-		let resp = await fetch('https://api.cloudflare.com/client/v4/ips');
-		let wasSuccessful = resp.ok ? 'success' : 'fail';
+		if (!env.REMO_TOKEN) {
+			console.error('REMO_TOKEN が設定されていません。環境変数を確認してください');
+			return;
+		}
 
-		// You could store this result in KV, write to a D1 Database, or publish to a Queue.
-		// In this template, we'll just log the result:
-		console.log(`trigger fired at ${event.cron}: ${wasSuccessful}`);
+		try {
+			const usecase = new SensingRecordUsecase({
+				sensingRepository: new D1SensingRepository(env.ROOM_MONITOR_DB),
+				sensingClient: new RemoSensingClient({ token: env.REMO_TOKEN }),
+			});
+
+			await usecase.execute();
+		} catch (e: unknown) {
+			console.error(e);
+		}
 	},
 };
